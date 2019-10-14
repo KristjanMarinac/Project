@@ -1,0 +1,24 @@
+import json,time
+
+class Pica():
+    def __init__(self, velicina, vrsta, dodaci, placanje, adresa, telefon, napomena, vreme):
+        self.velicina = velicina
+        self.vrsta = vrsta
+        self.dodaci= dodaci
+        self.placanje = placanje
+        self.adresa = adresa
+        self.telefon = telefon
+        self.napomena = napomena
+        self.vreme = vreme
+
+
+    def __str__(self):
+        return self.vrsta+" ("+ str(self.velicina)+"):  "+ time.strftime("%M:%S",time.localtime(self.vreme))
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def from_json(cls, json_str):
+        pomocna = json.loads(json_str)
+        return Pica(**pomocna)
