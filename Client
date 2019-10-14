@@ -1,6 +1,97 @@
 import socket
+from tkinter import *
+from tkinter import messagebox
+from Pica import Pica
 
-s=socket.socket()
-host=socket.gethostname()
-port=12345
-s.connect((host,port))
+
+def proveri_i_posalji():
+    dodaci = []
+    if not velicina_pice_int.get() or not vrsta_pice_str.get() or not adresa.get() or not telefon.get() or not napomena.get():
+        messagebox.showinfo("Greska", "Nisu sva polja popunjena")
+        return
+
+    if kecap.get():
+        dodaci.append("Kecap")
+    if majonez.get():
+        dodaci.append("Majonez")
+    if origano.get():
+        dodaci.append("Origano")
+
+    pica = Pica(velicina_pice_int.get(),vrsta_pice_str.get(),dodaci,nacin_placanja.get(),adresa.get(),telefon.get(),napomena.get(),0)
+
+    host = socket.gethostname()
+    port = 9000
+    s = socket.socket()
+    s.connect((host, port))
+
+    s.send(pica.to_json().encode())
+    vreme = int(s.recv(1024).decode())
+    pica.vreme = vreme
+    messagebox.showinfo("Porudzbina", "Uspesno ste narucili picu, pica ce stici za: %d minuta" %vreme)
+    s.close()
+
+
+root = Tk()
+velicina_pice_int = IntVar()
+vrsta_pice_str = StringVar()
+root.config(padx=30, pady=30)
+Label(root, text= "Velicina pice: ").grid(row=0, column=0)
+rb_25 = Radiobutton(root, text= "25", variable=velicina_pice_int, value=25)
+rb_32 = Radiobutton(root, text= "32", variable=velicina_pice_int, value=32)
+rb_50 = Radiobutton(root, text= "50", variable=velicina_pice_int, value=50)
+rb_25.grid(row=0,column=1, padx=5, pady=10)
+rb_32.grid(row=0,column=2, padx=5, pady=10)
+rb_50.grid(row=0,column=3,padx=5, pady=10)
+
+
+Label(root, text= "Vrsta pice: ").grid(row=1, column=0)
+rb_1 = Radiobutton(root, text= "Margarita", variable=vrsta_pice_str, value="Margarita")
+rb_2 = Radiobutton(root, text= "Funghi", variable=vrsta_pice_str, value="Funghi")
+rb_3 = Radiobutton(root, text= "Quatro Stagione", variable=vrsta_pice_str, value="Quatro Stagione")
+rb_4 = Radiobutton(root, text= "Vegeteriana", variable=vrsta_pice_str, value="Vegeteriana")
+rb_1.grid(row=1, column=1, padx=5, pady=10)
+rb_2.grid(row=1, column=2, padx=5, pady=10)
+rb_3.grid(row=1, column=3, padx=5, pady=10)
+rb_4.grid(row=1, column=4, padx=5, pady=10)
+
+kecap = IntVar()
+majonez = IntVar()
+origano = IntVar()
+
+Label(root, text= "Dodaci: ").grid(row=2, column=0)
+cb_1 = Checkbutton(root, text= "Kecap", variable=kecap)
+cb_2 = Checkbutton(root, text= "Majonez", variable=majonez)
+cb_3 = Checkbutton(root, text= "Origano", variable=origano)
+cb_1.grid(row = 2, column=1, padx=5, pady=10)
+cb_2.grid(row = 2, column=2, padx=5, pady=10)
+cb_3.grid(row = 2, column=3, padx=5, pady=10)
+
+nacin_placanja= StringVar()
+Label(root, text= "Nacin placanja: ").grid(row=3, column=0)
+rb_placanje1 = Radiobutton(root, text= "Kes", variable=nacin_placanja, value="Kes")
+rb_placanje2 = Radiobutton(root, text= "Kartica", variable=nacin_placanja, value="Kartica")
+rb_placanje1.grid(row=3, column=1, padx=5, pady=10)
+rb_placanje2.grid(row=3, column=2, padx=5, pady=10)
+
+adresa =StringVar()
+Label(root, text= "Adresa: ").grid(row=4, column=0, padx=5, pady=5)
+adresaa = Entry(root, textvariable = adresa, width=50)
+adresaa.grid(row=4, column=1, columnspan=4)
+
+telefon =StringVar()
+Label(root, text= "Telefon: ").grid(row=5, column=0, padx=5, pady=5)
+tel = Entry(root, textvariable = telefon, width=50)
+tel.grid(row=5, column=1, columnspan=4)
+
+napomena = StringVar()
+Label(root, text= "Napomena: ").grid(row=6, column=0, padx=5, pady=5)
+nap = Entry(root, textvariable = napomena, width=50)
+nap.grid(row=6, column=1, columnspan=4)
+
+posalji = Button(root, text="Naruci", command=proveri_i_posalji, width = 10)
+posalji.grid(row=7, column=0, columnspan=5, padx=5, pady=10)
+
+root.mainloop()
+
+
+
