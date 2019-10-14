@@ -1,0 +1,67 @@
+import socket, random, threading,time
+from Pica import Pica
+from tkinter import *
+
+def smanji_vreme_i_ispisi():
+
+    while True:
+        for i in neisporucene:
+            if i.vreme-1 < 0:
+                isporucene.append(i)
+                neisporucene.remove(i)
+            else:
+                i.vreme = i.vreme - 1
+
+
+        lb_neisporucene.delete(0,END)
+        lb_isporucene.delete(0, END)
+        for i in neisporucene:
+            lb_neisporucene.insert(0, i)
+        for i in isporucene:
+            lb_isporucene.insert(0, i)
+        time.sleep(1)
+
+
+def komunikacija():
+    host = socket.gethostname()
+    port = 9000
+    s = socket.socket()
+    s.bind((host, port))
+    s.listen(5)
+    while True:
+        conn, adr = s.accept()
+        zahtev= conn.recv(1024).decode()
+        pica = Pica.from_json(zahtev)
+        vreme = random.randrange(1,3)
+        pica.vreme = vreme *60
+        print(pica)
+        neisporucene.append(pica)
+        conn.send(str(vreme).encode())
+        conn.close()
+
+
+
+neisporucene=[]
+isporucene=[]
+
+tred = threading.Thread(target=smanji_vreme_i_ispisi)
+
+tred2= threading.Thread(target=komunikacija)
+tred2.start()
+
+root = Tk()
+
+lb_neisporucene = Listbox(root, width=30, height=30)
+lb_isporucene = Listbox(root, width=30, height=30)
+Label(root, text="Neisporucene").grid(row=0, column=0)
+Label(root, text="Isporucene").grid(row=0, column=1)
+lb_neisporucene.grid(row=1, column=0)
+lb_isporucene.grid(row=1, column=1)
+
+tred.start()
+root.mainloop()
+
+
+
+
+
